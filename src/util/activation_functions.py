@@ -52,8 +52,12 @@ class Activation:
     @staticmethod
     def softmax(outp):
         # Here you have to code the softmax function
-        partly_output = exp(outp)
-        return partly_output / partly_output.sum()
+        
+        e_x = exp(outp - max(outp))
+        return e_x / e_x.sum()
+    
+#         partly_output = exp(outp)
+#         return partly_output / partly_output.sum()
 
     @staticmethod
     def softmax_prime(outp):

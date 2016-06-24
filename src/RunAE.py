@@ -4,7 +4,8 @@
 from data.mnist_seven import MNISTSeven
 
 from model.denoising_ae import DenoisingAutoEncoder
-from model.mlp import MultilayerPerceptron 
+from model.mlp import MultilayerPerceptron
+from model.logistic_layer import LogisticLayer
 
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
@@ -44,12 +45,33 @@ def main():
     # Feed it to be a hidden layer of the MLP, continue training (fine-tuning)
     # And do the classification
 
+
+    
+    myMLPLayers = []
+    # First hidden layer
+    number_of_1st_hidden_layer = 100
+    myMLPLayers.append(LogisticLayer(data.training_set.input.shape[1]-1,    # bias "1" already added so remove one
+                                     number_of_1st_hidden_layer,
+                                     weights=myDAE._get_weights(),
+                                     activation="sigmoid",
+                                     is_classifier_layer=False))
+    # Output layer
+    number_of_output_layer = 10
+    myMLPLayers.append(LogisticLayer(number_of_1st_hidden_layer,
+                                     number_of_output_layer,
+                                     None,
+                                     activation="softmax",
+                                     is_classifier_layer=True))
+
     # Correct the code here
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
-                                            data.test_set,
-                                            learning_rate=0.05,
+                                           data.test_set,
+                                           layers=myMLPLayers,
+                                           learning_rate=0.05,
                                            epochs=30)
+    # remove double added bias "1"
+    myMLPClassifier.__del__()
 
     print("\nMulti-layer Perceptron has been training..")
     myMLPClassifier.train()
