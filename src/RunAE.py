@@ -29,27 +29,31 @@ def main():
     print("=========================")
     print("Training the autoencoder..")
 
+
+
+    hiddenLayerNeurons = 100
     myDAE = DenoisingAutoEncoder(data.training_set,
                                  data.validation_set,
                                  data.test_set,
                                  learning_rate=0.05,
+                                 noiseRatio=0.3,
+                                 hiddenLayerNeurons=hiddenLayerNeurons,
                                  epochs=30)
-
+ 
     print("\nAutoencoder  has been training..")
     myDAE.train()
     print("Done..")
-
+ 
     # Multi-layer Perceptron
     # NOTES:
     # Now take the trained weights (layer) from the Autoencoder
     # Feed it to be a hidden layer of the MLP, continue training (fine-tuning)
     # And do the classification
-
-
-    
+ 
+ 
     myMLPLayers = []
     # First hidden layer
-    number_of_1st_hidden_layer = 100
+    number_of_1st_hidden_layer = hiddenLayerNeurons
     myMLPLayers.append(LogisticLayer(data.training_set.input.shape[1]-1,    # bias "1" already added so remove one
                                      number_of_1st_hidden_layer,
                                      weights=myDAE._get_weights(),
@@ -62,7 +66,7 @@ def main():
                                      None,
                                      activation="softmax",
                                      is_classifier_layer=True))
-
+ 
     # Correct the code here
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
@@ -70,8 +74,11 @@ def main():
                                            layers=myMLPLayers,
                                            learning_rate=0.05,
                                            epochs=30)
+    
     # remove double added bias "1"
     myMLPClassifier.__del__()
+
+
 
     print("\nMulti-layer Perceptron has been training..")
     myMLPClassifier.train()

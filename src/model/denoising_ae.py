@@ -17,7 +17,7 @@ class DenoisingAutoEncoder(AutoEncoder):
     A denoising autoencoder.
     """
 
-    def __init__(self, train, valid, test, learning_rate=0.1, epochs=30):
+    def __init__(self, train, valid, test, learning_rate=0.1, noiseRatio=0.3, hiddenLayerNeurons=100, epochs=30):
         """
          Parameters
         ----------
@@ -43,11 +43,14 @@ class DenoisingAutoEncoder(AutoEncoder):
         self.validation_set = valid
         self.test_set = test
         
+
+
+        self.noiseRatio = noiseRatio
         
         
         self.autoencLayers = []
         # First hidden layer
-        number_of_1st_hidden_layer = 100
+        number_of_1st_hidden_layer = hiddenLayerNeurons
         self.autoencLayers.append(LogisticLayer(train.input.shape[1],
                                                 number_of_1st_hidden_layer,
                                                 None,
@@ -57,7 +60,7 @@ class DenoisingAutoEncoder(AutoEncoder):
         self.autoencLayers.append(LogisticLayer(number_of_1st_hidden_layer,
                                                 train.input.shape[1],
                                                 None,
-                                                activation="softmax",
+                                                activation="sigmoid",
                                                 is_classifier_layer=True))
 
         self.autoencMLP = MultilayerPerceptron(self.training_set,
@@ -67,8 +70,8 @@ class DenoisingAutoEncoder(AutoEncoder):
                                                learning_rate=0.05,
                                                epochs=30)
 
-        
-        
+
+
     def train(self, verbose=True):
         """
         Train the denoising autoencoder
@@ -89,7 +92,20 @@ class DenoisingAutoEncoder(AutoEncoder):
 
             self._train_one_epoch()
 
-#             if verbose:
+            if verbose:
+                test = self.test_set.input
+                error = 0
+                for img in test:
+                    # without first element which is the bias "1"
+                    imgWithoutBias = img[1:]
+                    # set randomly entries to zero (depending on noiseRatio)
+                    noisedImg = np.concatenate(([1], self._addNoise(imgWithoutBias)), axis=0) 
+                    
+                    self.autoencMLP._feed_forward(noisedImg)
+                    error += abs(np.sum(imgWithoutBias - self.autoencMLP._get_output_layer().outp))
+                    
+                print("Total epoch error: {0}".format(error))
+
 #                 accuracy = accuracy_score(self.validation_set.label,
 #                                           self.evaluate(self.validation_set))
 #                 # Record the performance of each epoch for later usages
@@ -105,16 +121,28 @@ class DenoisingAutoEncoder(AutoEncoder):
         Train one epoch, seeing all input instances
         """
 
-        for img, label in zip(self.training_set.input,
-                              self.training_set.label):
-
+        for img in self.training_set.input:
             # without first element which is the bias "1"
-            target = img[1:]
+            imgWithoutBias = img[1:]
+            # set randomly entries to zero (depending on noiseRatio)
+            noisedImg = np.concatenate(([1], self._addNoise(imgWithoutBias)), axis=0) 
             
-            self.autoencMLP._feed_forward(img)
-            self.autoencMLP._compute_error(target)
+            self.autoencMLP._feed_forward(noisedImg)
+            #print("error: {0}".format(np.sum(imgWithoutBias - self.autoencMLP._get_output_layer().outp)))
+            self.autoencMLP._compute_error(imgWithoutBias)  # target is the input img (without bias "1")
             self.autoencMLP._update_weights()
-        
+           
+            
+    def _addNoise(self, instance):
+        # get the amount of zeros and ones in the noiseMask
+        zerosSize = int(instance.shape[0] * self.noiseRatio)
+        onesSize = instance.shape[0] - zerosSize
+        # create mask array with the specific amounts of zeros and ones and shuffle it
+        noiseMask = np.concatenate((np.zeros(zerosSize), np.ones(onesSize)), axis=0) 
+        np.random.shuffle(noiseMask)
+        # apply mask to instance
+        return instance * noiseMask
+
 
     def _get_weights(self):
         """
