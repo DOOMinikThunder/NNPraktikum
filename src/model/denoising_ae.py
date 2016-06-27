@@ -93,7 +93,7 @@ class DenoisingAutoEncoder(AutoEncoder):
             self._train_one_epoch()
 
             if verbose:
-                validation = self.validiation_set.input
+                validation = self.validation_set.input
                 error = 0
                 for img in validation:
                     # without first element which is the bias "1"
