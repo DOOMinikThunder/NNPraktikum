@@ -93,16 +93,16 @@ class DenoisingAutoEncoder(AutoEncoder):
             self._train_one_epoch()
 
             if verbose:
-                test = self.test_set.input
+                validation = self.validiation_set.input
                 error = 0
-                for img in test:
+                for img in validation:
                     # without first element which is the bias "1"
                     imgWithoutBias = img[1:]
                     # set randomly entries to zero (depending on noiseRatio)
                     noisedImg = np.concatenate(([1], self._addNoise(imgWithoutBias)), axis=0) 
                     
                     self.autoencMLP._feed_forward(noisedImg)
-                    error += abs(np.sum(imgWithoutBias - self.autoencMLP._get_output_layer().outp))
+                    error += np.sum(abs(imgWithoutBias - self.autoencMLP._get_output_layer().outp))
                     
                 print("Total epoch error: {0}".format(error))
 
