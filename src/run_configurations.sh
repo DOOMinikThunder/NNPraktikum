@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# ./run_configurations.sh | tee log.txt
+
+
 # python RunAE.py dae_nr  dae_lr dae_epochs mlp_lr mlp_epochs hiddenLayerNeurons
 #
 # dae_nr = 0.3

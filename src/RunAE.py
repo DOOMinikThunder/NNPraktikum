@@ -12,7 +12,7 @@ from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
 
 # parameters that identify each run plots
-dae_nr = 0.3
+dae_nr = 0.9
 dae_lr = 0.05
 dae_epochs = 30
 mlp_lr = 0.05
@@ -21,12 +21,12 @@ hiddenLayerNeurons = 100
 
 if len(sys.argv) == 7:
     print "-----> Running new configuration from script <-----"
-    dae_nr = sys.argv[1]
-    dae_lr = sys.argv[2]
-    dae_epochs = sys.argv[3]
-    mlp_lr = sys.argv[4]
-    mlp_epochs = sys.argv[5]
-    hiddenLayerNeurons = sys.argv[6]
+    dae_nr = float(sys.argv[1])
+    dae_lr = float(sys.argv[2])
+    dae_epochs = int(sys.argv[3])
+    mlp_lr = float(sys.argv[4])
+    mlp_epochs = int(sys.argv[5])
+    hiddenLayerNeurons = int(sys.argv[6])
 
 filename = "dae_nr" + str(dae_nr)+ "_" + "dae_lr" + str(dae_lr) + "_" \
             + "dae_epochs" + str(dae_epochs) + "_" + "mlp_lr" + str(mlp_lr) + "_" \
