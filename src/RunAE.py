@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import sys
+import os
 from data.mnist_seven import MNISTSeven
 
 from model.denoising_ae import DenoisingAutoEncoder
@@ -10,6 +11,29 @@ from model.logistic_layer import LogisticLayer
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
 
+# parameters that identify each run plots
+dae_nr = 0.3
+dae_lr = 0.05
+dae_epochs = 30
+mlp_lr = 0.05
+mlp_epochs = 30
+hiddenLayerNeurons = 100
+
+if len(sys.argv) == 7:
+    print "-----> Running new configuration from script <-----"
+    dae_nr = sys.argv[1]
+    dae_lr = sys.argv[2]
+    dae_epochs = sys.argv[3]
+    mlp_lr = sys.argv[4]
+    mlp_epochs = sys.argv[5]
+    hiddenLayerNeurons = sys.argv[6]
+
+filename = "dae_nr" + str(dae_nr)+ "_" + "dae_lr" + str(dae_lr) + "_" \
+            + "dae_epochs" + str(dae_epochs) + "_" + "mlp_lr" + str(mlp_lr) + "_" \
+            + "mlp_epochs" + str(mlp_epochs) + "_" + "hiddenLayerNeurons" \
+            + str(hiddenLayerNeurons)
+
+print filename
 
 def main():
     # data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
@@ -29,16 +53,13 @@ def main():
     print("=========================")
     print("Training the autoencoder..")
 
-
-
-    hiddenLayerNeurons = 100
     myDAE = DenoisingAutoEncoder(data.training_set,
                                  data.validation_set,
                                  data.test_set,
-                                 learning_rate=0.05,
-                                 noiseRatio=0.3,
+                                 learning_rate=dae_lr,
+                                 noiseRatio=dae_nr,
                                  hiddenLayerNeurons=hiddenLayerNeurons,
-                                 epochs=30)
+                                 epochs=dae_epochs)
  
     print("\nAutoencoder  has been training..")
     myDAE.train()
@@ -72,8 +93,8 @@ def main():
                                            data.validation_set,
                                            data.test_set,
                                            layers=myMLPLayers,
-                                           learning_rate=0.05,
-                                           epochs=30)
+                                           learning_rate=mlp_lr,
+                                           epochs=mlp_epochs)
     
     # remove double added bias "1"
     myMLPClassifier.__del__()
@@ -107,10 +128,11 @@ def main():
     # evaluator.printComparison(data.testSet, perceptronPred)
     evaluator.printAccuracy(data.test_set, mlpPred)
 
+    os.chdir("..")
     # Draw
-    plot = PerformancePlot("DAE + MLP on MNIST task")
-    plot.draw_performance_epoch(myMLPClassifier.performances,
-                                myMLPClassifier.epochs)
+    plot = PerformancePlot("DAE + MLP on MNIST task on validation set")
+    plot.draw_performance_epoch(myMLPClassifier.performances, \
+            myMLPClassifier.epochs, "plots", filename)
 
 if __name__ == '__main__':
     main()

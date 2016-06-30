@@ -13,11 +13,11 @@ class PerformancePlot(object):
         '''
         self.name = name
 
-    def draw_performance_epoch(self, performances, epochs):
+    def draw_performance_epoch(self, performances, epochs, savedir, filename):
         plt.plot(range(epochs), performances, 'k',
                  range(epochs), performances, 'ro')
         plt.title("Performance of " + self.name + " over the epochs")
         plt.ylim(ymax=1)
         plt.ylabel("Accuracy")
         plt.xlabel("Epoch")
-        plt.show()
+        plt.savefig(savedir + "/" + filename + ".png", bbox_inches='tight')
