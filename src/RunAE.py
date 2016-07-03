@@ -10,6 +10,7 @@ from model.logistic_layer import LogisticLayer
 
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
+from report.weight_visualization_plot import WeightVisualizationPlot
 
 # parameters that identify each run plots
 dae_nr = 0.9
@@ -131,8 +132,11 @@ def main():
     os.chdir("..")
     # Draw
     plot = PerformancePlot("DAE + MLP on MNIST task on validation set")
-    plot.draw_performance_epoch(myMLPClassifier.performances, \
-            myMLPClassifier.epochs, "plots", filename)
+    plot.draw_performance_epoch(myMLPClassifier.performances, myMLPClassifier.epochs, "plots", filename)
+
+    print("drawing weights of auto encoder mlp input…")
+    weight_plotter = WeightVisualizationPlot(myDAE.autoencMLP)
+    weight_plotter.plot()
 
 if __name__ == '__main__':
     main()
