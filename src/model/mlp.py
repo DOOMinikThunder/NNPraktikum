@@ -16,7 +16,7 @@ class MultilayerPerceptron(Classifier):
 
     def __init__(self, train, valid, test, layers=None, input_weights=None,
                  output_task='classification', output_activation='softmax',
-                 cost='crossentropy', learning_rate=0.01, epochs=50):
+                 cost='crossentropy', learning_rate=0.01, decay=0.001, epochs=50):
 
         """
         A digit-7 recognizer based on logistic regression algorithm
@@ -38,7 +38,7 @@ class MultilayerPerceptron(Classifier):
         epochs : positive int
         performances: array of floats
         """
-
+        self.decay = decay
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.output_task = output_task  # Either classification or regression
@@ -145,7 +145,7 @@ class MultilayerPerceptron(Classifier):
         """
         # Update the weights layer by layers
         for layer in self.layers:
-            layer.updateWeights(self.learning_rate)
+            layer.updateWeights(self.learning_rate, self.decay)
 
     def train(self, verbose=True):
         """Train the Multi-layer Perceptrons

@@ -134,7 +134,7 @@ class LogisticLayer():
         # Or you can have two computeDerivative methods, feel free to call
         # the other is computeOutputLayerDerivative or such.
 
-    def updateWeights(self, learning_rate):
+    def updateWeights(self, learning_rate, decay):
         """
         Update the weights of the layer
         """
@@ -142,9 +142,8 @@ class LogisticLayer():
         # Here the implementation of weight updating mechanism
         # Page 40 Back-propagation slides
         for neuron in range(0, self.n_out):
-            self.weights[:, neuron] += (learning_rate *
-                                        self.deltas[neuron] *
-                                        self.inp)
+            self.weights[:, neuron] += (learning_rate * self.deltas[neuron] * self.inp) \
+                                       - learning_rate * decay * self.weights[:, neuron]
 
     def _fire(self, inp):
         net_output = np.dot(np.array(inp), self.weights)
